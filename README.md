@@ -1,2 +1,2 @@
-# oslog.rb
+# oslog
 Logger for OpenStudio
