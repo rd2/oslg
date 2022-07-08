@@ -1,4 +1,4 @@
-# oslog
+# oslg
 
 A logger module for [OpenStudio](https://openstudio-sdk-documentation.s3.amazonaws.com/index.html) [Measure](https://nrel.github.io/OpenStudio-user-documentation/reference/measure_writing_guide/) developers who wish to select what gets logged to which target (e.g. OpenStudio _runner_ vs custom JSON file).
 
