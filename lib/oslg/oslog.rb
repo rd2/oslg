@@ -28,39 +28,32 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# This module is a rehash of TBD's log solution (MIT-licensed):
-#
-#   https://github.com/rd2/tbd/blob/master/lib/log.rb
+module OSlg
+  DEBUG        = 1
+  INFO         = 2
+  WARN         = 3
+  ERROR        = 4
+  FATAL        = 5
 
-module CNST
-  DEBUG = 1
-  INFO  = 2
-  WARN  = 3
-  ERROR = 4
-  FATAL = 5
-end
+  @@logs       = []
+  @@level      = INFO
 
-module OSLog
-  @@logs             = []
-  @@level            = CNST::INFO
+  @@tag        = []
+  @@tag[0    ] = ""
+  @@tag[DEBUG] = "DEBUG"
+  @@tag[INFO ] = "INFO"
+  @@tag[WARN ] = "WARNING"
+  @@tag[ERROR] = "ERROR"
+  @@tag[FATAL] = "FATAL"
 
-  @@tag              = []
-  @@tag[0          ] = ""
-  @@tag[CNST::DEBUG] = "DEBUG"
-  @@tag[CNST::INFO ] = "INFO"
-  @@tag[CNST::WARN ] = "WARNING"
-  @@tag[CNST::ERROR] = "ERROR"
-  @@tag[CNST::FATAL] = "FATAL"
+  @@msg        = []
+  @@msg[0    ] = ""
+  @@msg[DEBUG] = "Debugging ..."
+  @@msg[INFO ] = "Success! No errors, no warnings"
+  @@msg[WARN ] = "Partial success, raised non-fatal warnings"
+  @@msg[ERROR] = "Partial success, encountered non-fatal errors"
+  @@msg[FATAL] = "Failure, triggered fatal errors"
 
-  @@msg              = []
-  @@msg[0          ] = ""
-  @@msg[CNST::DEBUG] = "Debugging ..."
-  @@msg[CNST::INFO ] = "Success! No errors, no warnings"
-  @@msg[CNST::WARN ] = "Partial success, raised non-fatal warnings"
-  @@msg[CNST::ERROR] = "Partial success, encountered non-fatal errors"
-  @@msg[CNST::FATAL] = "Failure, triggered fatal errors"
-
-  # Highest log level reached so far in process sequence.
   @@status = 0
 
   def logs
@@ -76,32 +69,32 @@ module OSLog
   end
 
   def debug?
-    return @@status == CNST::DEBUG
+    return @@status == DEBUG
   end
 
   def info?
-    return @@status == CNST::INFO
+    return @@status == INFO
   end
 
   def warn?
-    return @@status == CNST::WARN
+    return @@status == WARN
   end
 
   def error?
-    return @@status == CNST::ERROR
+    return @@status == ERROR
   end
 
   def fatal?
-    return @@status == CNST::FATAL
+    return @@status == FATAL
   end
 
   def tag(level)
-    return @@tag[level] if level >= CNST::DEBUG && level <= CNST::FATAL
+    return @@tag[level] if level >= DEBUG && level <= FATAL
     return ""
   end
 
   def msg(status)
-    if level >= CNST::DEBUG && level <= CNST::FATAL return @@msg[status]
+    return @@msg[status] if level >= DEBUG && level <= FATAL
     return ""
   end
 
@@ -118,7 +111,7 @@ module OSLog
   end
 
   def clean!
-    @@level = CNST::INFO
+    @@level = INFO
     @@status = 0
     @@logs = []
   end

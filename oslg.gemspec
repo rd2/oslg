@@ -1,10 +1,10 @@
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "oslog/version"
+require "oslg/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "oslog"
-  spec.version       = OSLog::VERSION
+  spec.name          = "oslg"
+  spec.version       = OSlg::VERSION
   spec.platform      = Gem::Platform::RUBY
   spec.authors       = ["Denis Bourgeois"]
   spec.email         = ["denis@rd2.ca"]
@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "A logger module for OpenStudio Measure developers "
   spec.description   = "For OpenStudio Measure developers who wish to select " \
                        "what gets logged to which target "
-  spec.homepage      = "https://github.com/rd2/oslog"
+  spec.homepage      = "https://github.com/rd2/oslg"
   spec.license       = "BSD-3-Clause"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the
@@ -36,25 +36,19 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # if /^2.5/.match(RUBY_VERSION)
+  if /^2.5/.match(RUBY_VERSION)
     spec.required_ruby_version = "~> 2.5.0"
 
-  #   spec.add_development_dependency "bundler",        "~> 2.1"
-  #   spec.add_development_dependency "public_suffix",  "~> 3.1.1"
-  #   spec.add_development_dependency "json-schema",    "~> 2.7.0"
-  #   spec.add_development_dependency "rake",           "~> 13.0"
-  #   spec.add_development_dependency "rspec",          "~> 3.9"
-  #   spec.add_development_dependency "rubocop",        "~> 0.54.0"
-  #   spec.add_development_dependency "yard",           "~> 0.9"
-  # else
-  #   spec.required_ruby_version = "~> 2.7.0"
-  #
-  #   spec.add_development_dependency "bundler",        "~> 2.1"
-  #   spec.add_development_dependency "public_suffix",  "~> 3.1.1"
-  #   spec.add_development_dependency "json-schema",    "~> 2.7.0"
-  #   spec.add_development_dependency "rake",           "~> 13.0"
-  #   spec.add_development_dependency "rspec",          "~> 3.9"
-  #   spec.add_development_dependency "rubocop",        "~> 1.15.0"
-  #   spec.add_development_dependency "yard",           "~> 0.9"
-  # end
+    spec.add_development_dependency "bundler",        "~> 2.1"
+    spec.add_development_dependency "rake",           "~> 13.0"
+    spec.add_development_dependency "rspec",          "~> 3.9"
+    spec.add_development_dependency "yard",           "~> 0.9"
+  else
+    spec.required_ruby_version = "~> 2.7.0"
+
+    spec.add_development_dependency "bundler",        "~> 2.1"
+    spec.add_development_dependency "rake",           "~> 13.0"
+    spec.add_development_dependency "rspec",          "~> 3.9"
+    spec.add_development_dependency "yard",           "~> 0.9"
+  end
 end
