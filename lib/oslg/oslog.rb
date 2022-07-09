@@ -37,6 +37,7 @@ module OSlg
 
   @@logs       = []
   @@level      = INFO
+  @@status     = 0
 
   @@tag        = []
   @@tag[0    ] = ""
@@ -53,8 +54,6 @@ module OSlg
   @@msg[WARN ] = "Partial success, raised non-fatal warnings"
   @@msg[ERROR] = "Partial success, encountered non-fatal errors"
   @@msg[FATAL] = "Failure, triggered fatal errors"
-
-  @@status = 0
 
   def logs
     @@logs
@@ -111,9 +110,9 @@ module OSlg
   end
 
   def clean!
-    @@level = INFO
+    @@level  = INFO
     @@status = 0
-    @@logs = []
+    @@logs   = []
   end
 
   def self.extended(base)

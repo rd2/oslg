@@ -14,13 +14,11 @@ bundle install
 
 ### OpenStudio & EnergyPlus
 
-In most cases, critical (and many non-critical) OpenStudio anomalies will be caught by EnergyPlus at the start of a simulation. For iterative solutions or _standalone_ cases (e.g. _Apply Measures Now_), measures can't rely on EnergyPlus to catch such errors - and somehow warn users of potentially invalid results. This Ruby module is designed to log warnings, as well as non-fatal & fatal errors, that may put its parent OpenStudio (or EnergyPlus) measures' internal processes at risk. The presence of FATAL, ERROR or WARNING log entries should ideally be interpreted as something to look into and/or remediate. Developers are free to decide how to harness __oslg__ as they see fit, e.g. output logged warnings to the _runner_, while writing out DEBUG messages to file.
-
-EnergyPlus will run with e.g. out-of-range material or fluid properties. This triggers an ERROR in EnergyPlus, yet simulations proceed regardless - it's up to users to decide what to do with simulation results. We recommend something similar with __oslg__ - but it remains up to each developer.
+In most cases, critical (and many non-critical) OpenStudio anomalies will be caught by EnergyPlus at the start of a simulation. Standalone applications (e.g. _Apply Measures Now_) or [SDK](https://openstudio-sdk-documentation.s3.amazonaws.com/index.html)-based iterative solutions can't rely on EnergyPlus to catch such errors - and somehow warn users of potentially invalid results. This Ruby module provides developers a solution to log warnings, as well as non-fatal & fatal errors, that may eventually put OpenStudio (or EnergyPlus) internal processes at risk. Developers are free to decide how to harness __oslg__ as they see fit, e.g. output logged WARNING messages to the OpenStudio _runner_, while writing out DEBUG messages to a bug report file.
 
 ### Recommended use
 
-As a Ruby module, it's best to add __oslg__ by _extending_ a measure module or class.  
+As a Ruby module, it's best to add __oslg__ by _extending_ a measure module or class.
 
 ```
 module Modu
@@ -29,20 +27,38 @@ module Modu
 end
 ```
 
-Not a bad idea to start with a _clean_ slate (quite useful with iterative solutions) - use with caution!
+Ordered __oslg__ levels (from benign to severe):
+
+```
+DEBUG
+INFO
+WARN
+ERROR
+FATAL
+```
+
+Initially, __oslg__ sets 2x internal variable states: __level__ (= INFO) and __status__ (< DEBUG). The variable __level__ is a threshold below which less severe logs (e.g. DEBUG) are ignored. For instance, if __level__ were reset to DEBUG (```Modu.set_level(Modu::DEBUG)```), then all DEBUG messages would also be logged. The variable __status__ is reset with each new log entry if the latter's log level is more severe than its predecessor (e.g. __status__ = FATAL if there is a single log entry registered as FATAL). To check the curent __status__ (true or false):  
+
+```
+Modu.debug?
+Modu.warn?
+Modu.error?
+Modu.fatal?
+```
+
+Not a bad idea to start each instance with a _clean_ slate (quite useful with iterative solutions). This flushes out all previous logs and resets __level__ (= INFO) and __status__ (< DEBUG) - use with caution!
 
 ```
 Modu.clean!
 ```
 
-
-We suggest logging as __FATAL__ any error that should halt measure processes and prevent OpenStudio from launching an EnergyPlus simulation. This could be missing or poorly-defined OpenStudio files.
+EnergyPlus will run with e.g. out-of-range material or fluid properties - while logging ERROR messages in the process. It remains up to users to decide what to do with simulation results. We recommend something similar with __oslg__ - but this is up to each developer. We suggest logging as __FATAL__ any error that should halt measure processes and prevent OpenStudio from launching an EnergyPlus simulation. This could be missing or poorly-defined OpenStudio files.
 
 ```
 Modu.log(Modu::FATAL, "Missing input JSON file")
 ```
 
-Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, e.g. well defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision taken by the EnergyPlus simulation engine), it would be up to users to decide if the simulation results were valid or useful, given the context (maybe based on __oslg__ logged messages). In short, non-fatal ERROR logs should point to bad input users can fix.
+Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, i.e. well-defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision taken by the EnergyPlus simulation engine), it would be up to users to decide if the simulation results were valid or useful, given the context (maybe based on __oslg__ logged messages). In short, non-fatal ERROR logs should ideally point to bad input users can fix.
 
 ```
 Modu.log(Modu::ERROR, "Measure won't process MASSLESS materials")
@@ -67,7 +83,7 @@ Modu.log(Modu::DEBUG, "Method argument is a Hash, expected an Array - this is a 
 exit
 ```
 
-Log entries are stored in an Array, with each individual log entry as a Hash with 2x _keys_ ```:level``` and ```:message```, e.g.:
+All log entries are stored in a single Ruby Array, with each individual log entry as a Ruby Hash with 2x _keys_ ```:level``` and ```:message```, e.g.:
 
 ```
 Modu.logs.each do |log|
