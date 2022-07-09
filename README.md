@@ -58,13 +58,13 @@ EnergyPlus will run with e.g. out-of-range material or fluid properties - while 
 Modu.log(Modu::FATAL, "Missing input JSON file")
 ```
 
-Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, i.e. well-defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision taken by the EnergyPlus simulation engine), it would be up to users to decide if the simulation results were valid or useful, given the context (maybe based on __oslg__ logged messages). In short, non-fatal ERROR logs should ideally point to bad input users can fix.
+Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, i.e. well-defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision made by the EnergyPlus simulation engine), it would be up to users to decide if simulation results were valid or useful, given the context (maybe based on __oslg__ logged messages). In short, non-fatal ERROR logs should ideally point to bad input users can fix.
 
 ```
 Modu.log(Modu::ERROR, "Measure won't process MASSLESS materials")
 ```
 
-A __WARNING__ could be triggered from inherit limitations of the underlying measure scope or methodology (something the user has limited control over beforehand). For instance, a surface the size of a dinner plate is often an artifact of poor 3D model design. It's usually not a good idea to have such small surfaces in an OpenStudio model, but neither OpenStudio nor EnergyPlus will necessarily warn users of such occurrences. It's up to users to decide on the suitable course of action.
+A __WARNING__ could be triggered from inherit limitations of the underlying measure scope or methodology (something users may have little knowledge of beforehand). For instance, surfaces the size of dinner plates are often artifacts of poor 3D model design. It's usually not a good idea to have such small surfaces in an OpenStudio model, but neither OpenStudio nor EnergyPlus will necessarily warn users of such occurrences. It's up to users to decide on the suitable course of action.
 
 ```
 Modu.log(Modu::WARN, "Surface area < 100cm2")
@@ -80,10 +80,9 @@ Finally, a number of sanity checks are likely warranted to ensure Ruby doesn't c
 
 ```
 Modu.log(Modu::DEBUG, "Method argument is a Hash, expected an Array - this is a bug!")
-exit
 ```
 
-All log entries are stored in a single Ruby Array, with each individual log entry as a Ruby Hash with 2x _keys_ ```:level``` and ```:message```, e.g.:
+All log entries are stored in a single Ruby Array: each individual log entry as a Ruby Hash with 2x _keys_ ```:level``` and ```:message```, e.g.:
 
 ```
 Modu.logs.each do |log|

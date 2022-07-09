@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Denis Bourgeois"]
   spec.email         = ["denis@rd2.ca"]
 
-  spec.summary       = "A logger module for OpenStudio Measure developers "
+  spec.summary       = "A logger module for OpenStudio Measure developers"
   spec.description   = "For OpenStudio Measure developers who wish to select " \
-                       "what gets logged to which target "
+                       "what gets logged to which target."
   spec.homepage      = "https://github.com/rd2/oslg"
   spec.license       = "BSD-3-Clause"
 
