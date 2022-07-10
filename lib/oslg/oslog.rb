@@ -68,33 +68,33 @@ module OSlg
   end
 
   def debug?
-    return @@status == DEBUG
+    @@status == DEBUG
   end
 
   def info?
-    return @@status == INFO
+    @@status == INFO
   end
 
   def warn?
-    return @@status == WARN
+    @@status == WARN
   end
 
   def error?
-    return @@status == ERROR
+    @@status == ERROR
   end
 
   def fatal?
-    return @@status == FATAL
+    @@status == FATAL
   end
 
   def tag(level)
     return @@tag[level] if level >= DEBUG && level <= FATAL
-    return ""
+    ""
   end
 
   def msg(status)
     return @@msg[status] if level >= DEBUG && level <= FATAL
-    return ""
+    ""
   end
 
   def set_level(level)
@@ -104,15 +104,15 @@ module OSlg
   def log(level, message)
     if level >= @@level
       @@logs << { level: level, message: message }
-
       @@status = level if level > @@status
     end
+    @@status
   end
 
   def clean!
-    @@level  = INFO
     @@status = 0
     @@logs   = []
+    @@level
   end
 
   def self.extended(base)
