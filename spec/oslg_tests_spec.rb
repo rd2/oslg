@@ -24,7 +24,7 @@ RSpec.describe OSlg do
     expect(clss.logs.first.key?(:message))
     expect(clss.logs.first[:message]).to eq("Logging within clss")
 
-    expect(cls2.setLevel(cls2::DEBUG)).to eq(cls2::DEBUG)
+    expect(cls2.reset(cls2::DEBUG)).to eq(cls2::DEBUG)
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.log(cls2::WARN, "Logging within cls2")).to eq(cls2::WARN)
 
@@ -42,63 +42,69 @@ RSpec.describe OSlg do
     expect(cls2.logs.first.key?(:message))
     expect(cls2.logs.first[:message]).to eq("Logging within cls2")
 
-    expect(cls2.clean!).to eq(cls2::DEBUG)                                  # without arguments
-    expect(cls2.invalid.nil?).to be(true)
+    expect(cls2.clean!).to eq(cls2::DEBUG)
+    expect(cls2.invalid("x").nil?).to be(true)
     expect(cls2.logs.empty?).to be(true)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.invalid(4, -1).nil?).to be(true) # 4 != method, -1 invalid order
+    expect(cls2.invalid("x", Array).nil?).to be(true)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("Invalid argument (4)")
+    expect(cls2.logs.first[:message]).to eq("Invalid 'x' (Array)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.invalid(String, "string").nil?).to be(true)    # Class to String
+    expect(cls2.invalid("x", 4, -1).nil?).to be(true)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("Invalid argument (String)")
+    expect(cls2.logs.first[:message]).to eq("Invalid 'x' (4)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.mismatch("String", Integer, "foo").nil?).to be(true) # i to s
+    expect(cls2.invalid("x", String, 2).nil?).to be(true)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("String? expecting Integer (foo)")
+    expect(cls2.logs.first[:message]).to eq("Invalid 'x' arg #2 (String)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.mismatch(nil, nil).nil?).to be(true)       # nil or no arguments
+    expect(cls2.mismatch("x", "y", Hash, "foo").nil?).to be(true)
+    expect(cls2.logs.size).to eq(1)
+    expect(cls2.logs.first.key?(:message))
+    expect(cls2.logs.first[:message]).to eq("'x' String? expecting Hash (foo)")
+
+    expect(cls2.clean!).to eq(cls2::DEBUG)
+    expect(cls2.mismatch(nil, nil).nil?).to be(true)
     expect(cls2.logs.empty?).to be(true)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.mismatch("String", String, "foo").nil?).to be(true)  # mismatch?
+    expect(cls2.mismatch("x", "String", String, "foo").nil?).to be(true)
     expect(cls2.logs.empty?).to be(true)
 
-    expect(cls2.mismatch("String", Array, (1..60).to_a).nil?).to be(true) # to_a
+    expect(cls2.mismatch("x", "String", Array, (1..60).to_a).nil?).to be(true)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    str = "String? expecting Array ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, "
+    str = "'x' String? expecting Array ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,"
     expect(cls2.logs.first[:message].include?(str)).to be(true)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.hashkey({foo: 0}, "foo", "bar")).to be(nil)
+    expect(cls2.hashkey("x", {bar: 0}, "k", "foo")).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("Hash doesn't hold key 'foo' (bar)")
+    expect(cls2.logs.first[:message]).to eq("'x' Hash: no key 'k' (foo)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.hashkey({foo: 0}, :foo, "bar")).to be(nil)
+    expect(cls2.hashkey("x", {foo: 0}, :foo, "bar")).to be(nil)
     expect(cls2.logs.empty?).to be(true)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.hashkey([0, 1], :foo, "bar")).to be(nil)
+    expect(cls2.hashkey("x", [0, 1], :foo, "bar")).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("Array? expecting Hash (bar)")
+    expect(cls2.logs.first[:message]).to eq("'x' Array? expecting Hash (bar)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.empty("foo", "bar")).to be(nil)
+    expect(cls2.empty("x", "foo")).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("Empty 'foo' (bar)")
+    expect(cls2.logs.first[:message]).to eq("Empty 'x' (foo)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.empty({foo: 0}, :foo)).to be(nil)
@@ -111,10 +117,10 @@ RSpec.describe OSlg do
     expect(cls2.logs.empty?).to be(true)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
-    expect(cls2.zero("foo", "bar")).to be(nil)
+    expect(cls2.zero("x", "foo")).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("'foo' ~zero (bar)")
+    expect(cls2.logs.first[:message]).to eq("'x' ~zero (foo)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.zero({foo: 0}, :foo)).to be(nil)
@@ -145,7 +151,7 @@ RSpec.describe OSlg do
     expect(modu.logs.first.key?(:message))
     expect(modu.logs.first[:message]).to eq("Logging within modu")
 
-    expect(mod2.setLevel(mod2::DEBUG)).to eq(mod2::DEBUG)
+    expect(mod2.reset(mod2::DEBUG)).to eq(mod2::DEBUG)
     expect(mod2.clean!).to eq(mod2::DEBUG)
     expect(mod2.log(mod2::WARN, "Logging within mod2")).to eq(mod2::WARN)
 
