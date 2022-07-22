@@ -1,28 +1,28 @@
 require "oslg"
 
 RSpec.describe OSlg do
-  let(:clss) { Class.new  { extend OSlg } }
+  let(:cls1) { Class.new  { extend OSlg } }
   let(:cls2) { Class.new  { extend OSlg } }
-  let(:modu) { Module.new { extend OSlg } }
+  let(:mod1) { Module.new { extend OSlg } }
   let(:mod2) { Module.new { extend OSlg } }
 
   it "can log within class instances" do
-    expect(clss.clean!).to eq(clss::INFO)
-    expect(clss.log(clss::INFO, "Logging within clss")).to eq(clss::INFO)
+    expect(cls1.clean!).to eq(cls1::INFO)
+    expect(cls1.log(cls1::INFO, "Logging within cls1")).to eq(cls1::INFO)
 
-    expect(clss.status).to eq(clss::INFO)
-    expect(clss.debug?).to be(false)
-    expect(clss.info?).to be(true)
-    expect(clss.warn?).to be(false)
-    expect(clss.error?).to be(false)
-    expect(clss.fatal?).to be(false)
-    expect(clss.logs.is_a?(Array)).to be(true)
-    expect(clss.logs.size).to eq(1)
-    expect(clss.logs.first.is_a?(Hash)).to be(true)
-    expect(clss.logs.first.key?(:level)).to be(true)
-    expect(clss.logs.first[:level]).to eq(clss.status)
-    expect(clss.logs.first.key?(:message))
-    expect(clss.logs.first[:message]).to eq("Logging within clss")
+    expect(cls1.status).to eq(cls1::INFO)
+    expect(cls1.debug?).to be(false)
+    expect(cls1.info?).to be(true)
+    expect(cls1.warn?).to be(false)
+    expect(cls1.error?).to be(false)
+    expect(cls1.fatal?).to be(false)
+    expect(cls1.logs.is_a?(Array)).to be(true)
+    expect(cls1.logs.size).to eq(1)
+    expect(cls1.logs.first.is_a?(Hash)).to be(true)
+    expect(cls1.logs.first.key?(:level)).to be(true)
+    expect(cls1.logs.first[:level]).to eq(cls1.status)
+    expect(cls1.logs.first.key?(:message))
+    expect(cls1.logs.first[:message]).to eq("Logging within cls1")
 
     expect(cls2.reset(cls2::DEBUG)).to eq(cls2::DEBUG)
     expect(cls2.clean!).to eq(cls2::DEBUG)
@@ -134,22 +134,22 @@ RSpec.describe OSlg do
   end
 
   it "can log within a Module" do
-    modu.clean!
-    modu.log(modu::INFO, "Logging within modu")
+    mod2.clean!
+    mod2.log(mod2::INFO, "Logging within mod2")
 
-    expect(modu.status).to eq(modu::INFO)
-    expect(modu.debug?).to be(false)
-    expect(modu.info?).to be(true)
-    expect(modu.warn?).to be(false)
-    expect(modu.error?).to be(false)
-    expect(modu.fatal?).to be(false)
-    expect(modu.logs.is_a?(Array)).to be(true)
-    expect(modu.logs.size).to eq(1)
-    expect(modu.logs.first.is_a?(Hash)).to be(true)
-    expect(modu.logs.first.key?(:level)).to be(true)
-    expect(modu.logs.first[:level]).to eq(modu.status)
-    expect(modu.logs.first.key?(:message))
-    expect(modu.logs.first[:message]).to eq("Logging within modu")
+    expect(mod2.status).to eq(mod2::INFO)
+    expect(mod2.debug?).to be(false)
+    expect(mod2.info?).to be(true)
+    expect(mod2.warn?).to be(false)
+    expect(mod2.error?).to be(false)
+    expect(mod2.fatal?).to be(false)
+    expect(mod2.logs.is_a?(Array)).to be(true)
+    expect(mod2.logs.size).to eq(1)
+    expect(mod2.logs.first.is_a?(Hash)).to be(true)
+    expect(mod2.logs.first.key?(:level)).to be(true)
+    expect(mod2.logs.first[:level]).to eq(mod2.status)
+    expect(mod2.logs.first.key?(:message))
+    expect(mod2.logs.first[:message]).to eq("Logging within mod2")
 
     expect(mod2.reset(mod2::DEBUG)).to eq(mod2::DEBUG)
     expect(mod2.clean!).to eq(mod2::DEBUG)
