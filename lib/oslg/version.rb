@@ -29,5 +29,5 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module OSlg
-  VERSION = "0.1.5".freeze
+  VERSION = "0.2.0".freeze
 end
