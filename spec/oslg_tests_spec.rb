@@ -131,6 +131,22 @@ RSpec.describe OSlg do
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.zero(nil, 0)).to be(nil)
     expect(cls2.logs.empty?).to be(true)
+
+    expect(cls2.clean!).to eq(cls2::DEBUG)
+    expect(cls2.negative("x", "foo")).to be(nil)
+    expect(cls2.logs.size).to eq(1)
+    expect(cls2.logs.first.key?(:message))
+    expect(cls2.logs.first[:message]).to eq("'x' negative (foo)")
+
+    expect(cls2.clean!).to eq(cls2::DEBUG)
+    expect(cls2.negative({foo: 0}, :foo)).to be(nil)
+    expect(cls2.logs.size).to eq(1)
+    expect(cls2.logs.first.key?(:message))
+    expect(cls2.logs.first[:message]).to eq("'{:foo=>0}' negative (foo)")
+
+    expect(cls2.clean!).to eq(cls2::DEBUG)
+    expect(cls2.negative(nil, 0)).to be(nil)
+    expect(cls2.logs.empty?).to be(true)
   end
 
   it "can log within a Module" do

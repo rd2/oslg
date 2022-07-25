@@ -193,7 +193,7 @@ __zero__: for logging zero'ed (or nearly-zero'ed) values:
 
 ```
 Modu.zero("area", "sum", Modu::FATAL, false) if area.zero?
-Modu.zero("area", "sum", Modu::FATAL, false) if area < TOL
+Modu.zero("area", "sum", Modu::FATAL, false) if area.abs < TOL
 ```
 ... generating the following FATAL log message (before returning _false_):
 
@@ -203,3 +203,18 @@ Modu.zero("area", "sum", Modu::FATAL, false) if area < TOL
 ```
 
 And again, the first 2x arguments are required; the last 2x are optional.
+
+---
+
+__negative__: for logging negative (< 0) values:
+
+```
+Modu.negative("area", "sum", Modu::FATAL, false) if area < 0
+```
+... generating this FATAL log message (before returning _false_):
+
+```
+"'area' negative (sum)"
+```
+
+You guessed it: the first 2x arguments are required; the last 2x as optionals.

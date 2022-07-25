@@ -318,6 +318,33 @@ module OSlg
   end
 
   ##
+  # Log template 'negative' message and return user-set object.
+  #
+  # @param id [String] empty object identifier
+  # @param mth [String] calling method identifier
+  # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
+  # @param res [Object] what to return (optional)
+  #
+  # @return [Object] res if specified by user
+  # @return [Nil] nil if return object is invalid
+  def negative(id = "", mth = "", lvl = DEBUG, res = nil)
+    return nil unless defined?(res)
+    return res unless defined?(id ) && id
+    return res unless defined?(mth) && mth
+    return res unless defined?(lvl) && lvl
+    mth = mth.to_s.strip
+    mth = mth[0...60] + " ..." if mth.length > 60
+    return res if mth.empty?
+    id = id.to_s.strip
+    id = id[0...60] + " ..." if id.length > 60
+    return res if id.empty?
+    msg  = "'#{id}' negative (#{mth})"
+    lvl = lvl.to_i unless lvl.is_a?(Integer)
+    log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
+    res
+  end
+
+  ##
   # Reset log status and entries.
   #
   # @return [Integer] current level
