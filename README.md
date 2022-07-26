@@ -18,7 +18,7 @@ In most cases, critical (and many non-critical) OpenStudio anomalies will be cau
 
 ### Recommended use
 
-As a Ruby module, it's best to access __oslg__ by _extending_ a measure module or class:
+As a Ruby module, one can access __oslg__ by _extending_ a measure module or class:
 
 ```
 module Modu
@@ -37,7 +37,7 @@ ERROR
 FATAL
 ```
 
-DEBUG messages aren't benign at all, but are less informative for the typical Measure user.
+DEBUG messages aren't benign at all, but are certainly less informative for the typical Measure user.
 
 Initially, __oslg__ sets 2x internal variable states: `level` (INFO) and `status` (< DEBUG). The variable `level` is a user-set threshold below which less severe logs (e.g. DEBUG) are ignored. For instance, if `level` were _reset_ to DEBUG (e.g. `Modu.reset(Modu::DEBUG)`), then all DEBUG messages would also be logged. The variable `status` is reset with each new log entry if the latter's log level is more severe than its predecessor (e.g. `status == Modu::FATAL` if there is a single log entry registered as FATAL). To check the curent __oslg__ `status` (true or false):  
 
@@ -48,13 +48,13 @@ Modu.error?
 Modu.fatal?
 ```
 
-It's sometimes not a bad idea to restart with a _clean_ slate within iterative loops. This flushes out all previous logs and resets `level` (INFO) and `status` (< DEBUG) - use with caution!
+It's sometimes not a bad idea to rely on a _clean_ slate (e.g. within RSpecs). This flushes out all previous logs and resets `level` (INFO) and `status` (< DEBUG) - use with caution in production code!
 
 ```
 Modu.clean!
 ```
 
-EnergyPlus will run with, e.g. out-of-range material or fluid properties, while logging ERROR messages in the process. It remains up to users to decide what to do with simulation results. We recommend something similar with __oslg__. For instance, we suggest logging as __FATAL__ any error that should halt measure processes and prevent OpenStudio from launching an EnergyPlus simulation. This could be missing or poorly-defined OpenStudio files.
+EnergyPlus will run, with e.g. out-of-range material or fluid properties, while logging ERROR messages in the process. It remains up to users to decide what to do with simulation results. We recommend something similar with __oslg__. For instance, we suggest logging as __FATAL__ any error that should halt measure processes and prevent OpenStudio from launching an EnergyPlus simulation. This could be missing or poorly-defined OpenStudio files.
 
 ```
 Modu.log(Modu::FATAL, "Missing input JSON file")
@@ -75,7 +75,7 @@ Modu.log(Modu::WARN, "Surface area < 100cm2")
 There's also the possibility of logging __INFO__-rmative messages for users, e.g. the final state of a measure variable before exiting.
 
 ```
-Modu.log(Modu::INFO, "Envelope compliant to prescriptive requirements")
+Modu.log(Modu::INFO, "Envelope compliant to prescriptive code requirements")
 ```
 
 Finally, a number of sanity checks are likely warranted to ensure Ruby doesn't crash (e.g., invalid access to uninitialized variables), especially for lower-level functions. We suggest implementing safe fallbacks when this occurs, but __DEBUG__ errors could nonetheless be triggered to signal a bug.
@@ -105,17 +105,17 @@ unless var.is_a?(Array)
 end
 ```
 
-The following are compact, one-liner __oslg__ methods that _log & return_ in one go. These are for some of the most common checks OpenStudio SDK Ruby developers are likely to need. These methods require _valid_ arguments for __oslg__ to actually log. Although often expecting strings as arguments, the methods will try to convert other types to strings (e.g. classes, numbers, even entire arrays) if possible.
+The following are __oslg__ one-liner methods that _log & return_ in one go. These are for some of the most common checks OpenStudio SDK Ruby developers are likely to need. These methods require _valid_ arguments for __oslg__ to actually log. Although often expecting strings as arguments, the methods will try to convert other types to strings (e.g. classes, numbers, even entire arrays) if possible.
 
- ---
+---
 
-__invalid__: for logging  e.g. uninitialized or nilled objects:
+__invalid__: for logging e.g. uninitialized or nilled objects:
 
 ```
 return Modu.invalid("area", "sum", 0, Modu::ERROR, false) unless area
 ```
 
-This logs an ERROR message informing readers that an invalid object, 'area', was caught while running method 'sum', and then exits by returning _false_. The logged message would be:
+This logs an ERROR message informing users that an invalid object, 'area', was caught while running method 'sum', and then exits by returning _false_. The logged message would be:
 
 ```
 "Invalid 'area' (sum)"
