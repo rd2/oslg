@@ -5,8 +5,8 @@ require "oslg/version"
 Gem::Specification.new do |s|
   # Specify which files should be added to the gem when it is released.
   # "git ls-files -z" loads files in the RubyGem that have been added into git.
-  s.files                 = "git ls-files -z".split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
+  s.files                 = Dir.chdir(File.expand_path("..", __FILE__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   end
 
   s.name                  = "oslg"
