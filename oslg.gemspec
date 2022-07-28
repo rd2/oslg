@@ -6,14 +6,17 @@ Gem::Specification.new do |s|
   # Specify which files should be added to the gem when it is released.
   # "git ls-files -z" loads files in the RubyGem that have been added into git.
   s.files                 = Dir.chdir(File.expand_path("..", __FILE__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+    `git ls-files -z`.split("\x0").reject do |f|
+      f.match(%r{^(test|spec|features)/})
+    end
   end
 
   s.name                  = "oslg"
   s.version               = OSlg::VERSION
   s.license               = "BSD-3-Clause"
   s.summary               = "OpenStudio SDK logger"
-  s.description           = "For SDK users who select what's logged where."
+  s.description           = "For OpenStudio SDK users who wish to select "     \
+                            "what gets logged to which target."
   s.authors               = ["Denis Bourgeois"]
   s.email                 = ["denis@rd2.ca"]
   s.platform              = Gem::Platform::RUBY
@@ -27,7 +30,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "bundler", "~> 2.1"
   s.add_development_dependency "rake",    "~> 13.0"
   s.add_development_dependency "rspec",   "~> 3.11"
-  s.add_development_dependency "yard",    "~> 0.9"
 
   s.metadata["homepage_uri"]    = s.homepage
   s.metadata["source_code_uri"] = "#{s.homepage}/tree/v#{s.version}"
