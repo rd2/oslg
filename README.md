@@ -166,7 +166,7 @@ return M.hashkey("faces", faces, :area, "sum") unless faces.key?(:area)
 If the _Hash_ `faces` does not hold `:area` as one of its keys, then __hashkey__ would generate the following DEBUG log message (before returning _nil_):
 
 ```
-"'faces' Hash: no key 'area' (sum)"
+"Missing 'area' key in 'faces' Hash (sum)"
 ```
 
 Similar to __mismatch__, the method __hashkey__ requires 4x arguments (a _Hash_ ID, a valid Ruby _Hash_, the missing _key_, and the calling method ID). There are also 2x optional _terminal_ arguments, e.g. `M::ERROR, false)`.
@@ -198,8 +198,8 @@ M.zero("area", "sum", M::FATAL, false) if area.abs < TOL
 ... generating the following FATAL log message (before returning _false_):
 
 ```
-"'area' ~zero (sum)"
-"'area' ~zero (sum)"
+"Zero 'area' (sum)"
+"Zero 'area' (sum)"
 ```
 
 And again, the first 2x arguments are required; the last 2x are optional.
@@ -214,7 +214,7 @@ M.negative("area", "sum", M::FATAL, false) if area < 0
 ... generating this FATAL log message (before returning _false_):
 
 ```
-"'area' negative (sum)"
+"Negative 'area' (sum)"
 ```
 
 You guessed it: the first 2x arguments are required; the last 2x as optionals.
