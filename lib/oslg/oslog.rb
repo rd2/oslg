@@ -169,14 +169,14 @@ module OSlg
   ##
   # Log template 'invalid object' message and return user-set object.
   #
-  # @param id [String] empty object identifier
+  # @param id [String] invalid object identifier
   # @param mth [String] calling method identifier
   # @param ord [String] calling method argument order number of obj (optional)
   # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res [Object] what to return (optional)
   #
-  # @return [Object] res if specified by user
-  # @return [Nil] nil if return object is invalid
+  # @return [Object] return object if specified by user
+  # @return [Nil] nil if return object missing or invalid
   def invalid(id = "", mth = "", ord = 0, lvl = DEBUG, res = nil)
     return nil unless defined?(res)
     return res unless defined?(id ) && id
@@ -200,15 +200,15 @@ module OSlg
   ##
   # Log template 'instance/class mismatch' message and return user-set object.
   #
-  # @param id [String] empty object identifier
+  # @param id [String] mismatched object identifier
   # @param obj [Object] object to validate
   # @param cl [Class] target class
   # @param mth [String] calling method identifier
   # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res [Object] what to return (optional)
   #
-  # @return [Object] res if specified by user
-  # @return [Nil] nil if return object is invalid
+  # @return [Object] return object if specified by user
+  # @return [Nil] nil if return object missing or invalid
   def mismatch(id = "", obj = nil, cl = nil, mth = "", lvl = DEBUG, res = nil)
     return nil unless defined?(res)
     return res unless defined?(id ) && id
@@ -233,15 +233,15 @@ module OSlg
   ##
   # Log template 'missing hash key' message and return user-set object.
   #
-  # @param id [String] empty object identifier
+  # @param id [String] Hash identifier
   # @param hsh [Hash] hash to validate
-  # @param key [Object] target key
+  # @param key [Object] missing key
   # @param mth [String] calling method identifier
   # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res [Object] what to return (optional)
   #
-  # @return [Object] res if specified by user
-  # @return [Nil] nil if not specified by user (or invalid)
+  # @return [Object] return object if specified by user
+  # @return [Nil] nil if return object missing or invalid
   def hashkey(id = "", hsh = {}, key = "", mth = "", lvl = DEBUG, res = nil)
     return nil unless defined?(res)
     return res unless defined?(id ) && id
@@ -257,7 +257,7 @@ module OSlg
     return res if id.empty?
     return mismatch(id, hsh, Hash, mth, lvl, res) unless hsh.is_a?(Hash)
     return res if hsh.key?(key)
-    msg  = "'#{id}' Hash: no key '#{key}' (#{mth})"
+    msg  = "Missing '#{key}' key in '#{id}' Hash (#{mth})"
     lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
@@ -271,8 +271,8 @@ module OSlg
   # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res [Object] what to return (optional)
   #
-  # @return [Object] res if specified by user
-  # @return [Nil] nil if return object is invalid
+  # @return [Object] return object if specified by user
+  # @return [Nil] nil if return object missing or invalid
   def empty(id = "", mth = "", lvl = DEBUG, res = nil)
     return nil unless defined?(res)
     return res unless defined?(id ) && id
@@ -293,13 +293,13 @@ module OSlg
   ##
   # Log template 'near zero' message and return user-set object.
   #
-  # @param id [String] empty object identifier
+  # @param id [String] zero object identifier
   # @param mth [String] calling method identifier
   # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res [Object] what to return (optional)
   #
-  # @return [Object] res if specified by user
-  # @return [Nil] nil if return object is invalid
+  # @return [Object] return object if specified by user
+  # @return [Nil] nil if return object missing or invalid
   def zero(id = "", mth = "", lvl = DEBUG, res = nil)
     return nil unless defined?(res)
     return res unless defined?(id ) && id
@@ -311,7 +311,7 @@ module OSlg
     id = id.to_s.strip
     id = id[0...60] + " ..." if id.length > 60
     return res if id.empty?
-    msg  = "'#{id}' ~zero (#{mth})"
+    msg  = "Zero '#{id}' (#{mth})"
     lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
@@ -320,13 +320,13 @@ module OSlg
   ##
   # Log template 'negative' message and return user-set object.
   #
-  # @param id [String] empty object identifier
+  # @param id [String] negative object identifier
   # @param mth [String] calling method identifier
   # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res [Object] what to return (optional)
   #
-  # @return [Object] res if specified by user
-  # @return [Nil] nil if return object is invalid
+  # @return [Object] return object if specified by user
+  # @return [Nil] nil if return object missing or invalid
   def negative(id = "", mth = "", lvl = DEBUG, res = nil)
     return nil unless defined?(res)
     return res unless defined?(id ) && id
@@ -338,7 +338,7 @@ module OSlg
     id = id.to_s.strip
     id = id[0...60] + " ..." if id.length > 60
     return res if id.empty?
-    msg  = "'#{id}' negative (#{mth})"
+    msg  = "Negative '#{id}' (#{mth})"
     lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res

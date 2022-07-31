@@ -88,7 +88,8 @@ RSpec.describe OSlg do
     expect(cls2.hashkey("x", {bar: 0}, "k", "foo")).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("'x' Hash: no key 'k' (foo)")
+    str = "Missing 'k' key in 'x' Hash (foo)"
+    expect(cls2.logs.first[:message]).to eq(str)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.hashkey("x", {foo: 0}, :foo, "bar")).to be(nil)
@@ -120,13 +121,13 @@ RSpec.describe OSlg do
     expect(cls2.zero("x", "foo")).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("'x' ~zero (foo)")
+    expect(cls2.logs.first[:message]).to eq("Zero 'x' (foo)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.zero({foo: 0}, :foo)).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("'{:foo=>0}' ~zero (foo)")
+    expect(cls2.logs.first[:message]).to eq("Zero '{:foo=>0}' (foo)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.zero(nil, 0)).to be(nil)
@@ -136,13 +137,13 @@ RSpec.describe OSlg do
     expect(cls2.negative("x", "foo")).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("'x' negative (foo)")
+    expect(cls2.logs.first[:message]).to eq("Negative 'x' (foo)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.negative({foo: 0}, :foo)).to be(nil)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("'{:foo=>0}' negative (foo)")
+    expect(cls2.logs.first[:message]).to eq("Negative '{:foo=>0}' (foo)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.negative(nil, 0)).to be(nil)
