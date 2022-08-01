@@ -65,6 +65,10 @@ RSpec.describe OSlg do
     expect(cls2.logs.first[:message]).to eq("Invalid 'x' arg #2 (String)")
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
+    expect(cls2.invalid("x", String, 2, nil).nil?).to be(true)
+    expect(cls2.logs.empty?).to be(true)
+
+    expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.mismatch("x", "y", Hash, "foo").nil?).to be(true)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
@@ -78,7 +82,8 @@ RSpec.describe OSlg do
     expect(cls2.mismatch("x", "String", String, "foo").nil?).to be(true)
     expect(cls2.logs.empty?).to be(true)
 
-    expect(cls2.mismatch("x", "String", Array, (1..60).to_a).nil?).to be(true)
+    array = (1..60).to_a
+    expect(cls2.mismatch("x", "String", Array, array).nil?).to be(true)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
     str = "'x' String? expecting Array ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,"
@@ -97,9 +102,7 @@ RSpec.describe OSlg do
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.hashkey("x", [0, 1], :foo, "bar")).to be(nil)
-    expect(cls2.logs.size).to eq(1)
-    expect(cls2.logs.first.key?(:message))
-    expect(cls2.logs.first[:message]).to eq("'x' Array? expecting Hash (bar)")
+    expect(cls2.logs.empty?).to be(true)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.empty("x", "foo")).to be(nil)
