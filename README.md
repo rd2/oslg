@@ -39,7 +39,7 @@ FATAL
 
 DEBUG messages aren't benign at all, but are certainly less informative for the typical Measure user.
 
-Initially, __oslg__ sets 2x internal variable states: `level` (INFO) and `status` (< DEBUG). The variable `level` is a user-set threshold below which less severe logs (e.g. DEBUG) are ignored. For instance, if `level` were _reset_ to DEBUG (e.g. `M.reset(M::DEBUG)`), then all DEBUG messages would also be logged. The variable `status` is reset with each new log entry if the latter's log level is more severe than its predecessor (e.g. `status == M::FATAL` if there is a single log entry registered as FATAL). To check the curent __oslg__ `status` (true or false):  
+Initially, __oslg__ sets 2x internal attributes: `level` (INFO) and `status` (< DEBUG). The `level` attribute is a user-set threshold below which less severe logs (e.g. DEBUG) are ignored. For instance, if `level` were _reset_ to DEBUG (e.g. `M.reset(M::DEBUG)`), then all DEBUG messages would also be logged. The `status` attribute is reset with each new log entry if the latter's log level is more severe than its predecessor (e.g. `status == M::FATAL` if there is a single log entry registered as FATAL). To check the curent __oslg__ `status` (true or false):  
 
 ```
 M.debug?
@@ -48,7 +48,7 @@ M.error?
 M.fatal?
 ```
 
-It's sometimes not a bad idea to rely on a _clean_ slate (e.g. within RSpecs). The following flushes out all previous logs and resets `level` (INFO) and `status` (< DEBUG) - use with caution in production code!
+It's sometimes not a bad idea to rely on a _clean_ slate (e.g. within RSpecs). The following purges all previous logs and resets `level` (INFO) and `status` (< DEBUG) - use with caution in production code!
 
 ```
 M.clean!
@@ -60,7 +60,7 @@ EnergyPlus will run, with e.g. out-of-range material or fluid properties, while 
 M.log(M::FATAL, "Missing input JSON file")
 ```
 
-Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, i.e. well-defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision made by the EnergyPlus simulation engine), it would be up to users to decide if simulation results were valid or useful, given the context - maybe based on __oslg__ logged messages. In short, non-fatal ERROR logs should ideally point to bad input users can fix.
+Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, i.e. well-defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision made by the EnergyPlus simulation engine), it would be up to users to decide if simulation results were valid or useful, given the context - maybe based on __oslg__ logged messages. In short, non-fatal ERROR logs should ideally point to bad input (that users can fix).
 
 ```
 M.log(M::ERROR, "Measure won't process MASSLESS materials")
@@ -96,7 +96,7 @@ These logs can be first _mapped_ to other structures (then edited), depending on
 
 ### Preset log templates
 
-Typically, developers would first catch bad input, log an error message and possibly exit by returning a variable (e.g. __false__, __nil__), e.g.:  
+Typically, developers would first catch bad input, log an error message and possibly exit by returning an object (e.g. __false__, __nil__), e.g.:  
 
 ```
 unless var.is_a?(Array)
@@ -105,7 +105,7 @@ unless var.is_a?(Array)
 end
 ```
 
-The following are __oslg__ one-liner methods that _log & return_ in one go. These are for some of the most common checks OpenStudio SDK Ruby developers are likely to need. The methods require _valid_ arguments for __oslg__ to actually log. Although often expecting strings as arguments, the methods will try to convert other types to strings (e.g. classes, numbers, even entire arrays) if possible.
+The following are __oslg__ one-liner methods that _log & return_ in one go. These are for some of the most common checks OpenStudio SDK Ruby developers are likely to need. The methods require _valid_ arguments for __oslg__ to actually log. Although often expecting either strings or integers as arguments, the methods will try to convert other types to strings (e.g. classes, numbers, even entire arrays) or integers if possible.
 
 ---
 
@@ -125,8 +125,8 @@ The 3rd argument (e.g. _0_) is ignored unless `> 0` - a useful option when asser
 
 ```
 def sum(areas, units)
-  return M.invalid("areas", "sum", 1) unless areas
-  return M.invalid("units", "sum", 2) unless units
+  return M.invalid("areas", "sum", 1) unless areas.respond_to?(:to_f)
+  return M.invalid("units", "sum", 2) unless units.respond_to?(:to_s)
   ...
 end
 ```

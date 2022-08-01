@@ -171,28 +171,32 @@ module OSlg
   #
   # @param id [String] invalid object identifier
   # @param mth [String] calling method identifier
-  # @param ord [String] calling method argument order number of obj (optional)
+  # @param ord [Integer] calling method argument order number of obj (optional)
   # @param lvl [Integer] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res [Object] what to return (optional)
   #
   # @return [Object] return object if specified by user
-  # @return [Nil] nil if return object missing or invalid
+  # @return [Nil] nil if return object undefined
   def invalid(id = "", mth = "", ord = 0, lvl = DEBUG, res = nil)
-    return nil unless defined?(res)
-    return res unless defined?(id ) && id
-    return res unless defined?(mth) && mth
-    return res unless defined?(ord) && ord
-    return res unless defined?(lvl) && lvl
+    return res unless id.respond_to?(:to_s)
+    return res unless mth.respond_to?(:to_s)
+    return res unless ord.respond_to?(:to_i)
+    return res unless lvl.respond_to?(:to_i)
+
+    id  = id.to_s.strip
     mth = mth.to_s.strip
-    mth = mth[0...60] + " ..." if mth.length > 60
-    return res if mth.empty?
-    id = id.to_s.strip
+    ord = ord.to_i
+    lvl = lvl.to_i
+
     id = id[0...60] + " ..." if id.length > 60
     return res if id.empty?
+
+    mth = mth[0...60] + " ..." if mth.length > 60
+    return res if mth.empty?
+
     msg  = "Invalid '#{id}' "
-    msg += "arg ##{ord} " if ord.is_a?(Integer) && ord > 0
+    msg += "arg ##{ord} " if ord > 0
     msg += "(#{mth})"
-    lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
   end
@@ -208,24 +212,25 @@ module OSlg
   # @param res [Object] what to return (optional)
   #
   # @return [Object] return object if specified by user
-  # @return [Nil] nil if return object missing or invalid
+  # @return [Nil] nil if return object undefined
   def mismatch(id = "", obj = nil, cl = nil, mth = "", lvl = DEBUG, res = nil)
-    return nil unless defined?(res)
-    return res unless defined?(id ) && id
-    return res unless defined?(obj) && obj
-    return res unless defined?(cl ) && cl
-    return res unless defined?(mth) && mth
-    return res unless defined?(lvl) && lvl
-    mth = mth.to_s.strip
-    mth = mth[0...60] + " ..." if mth.length > 60
-    return res if mth.empty?
-    id = id.to_s.strip
-    id = id[0...60] + " ..." if id.length > 60
-    return res if id.empty?
+    return res unless id.respond_to?(:to_s)
     return res unless cl.is_a?(Class)
     return res if obj.is_a?(cl)
+    return res unless mth.respond_to?(:to_s)
+    return res unless lvl.respond_to?(:to_i)
+
+    mth = mth.to_s.strip
+    id  = id.to_s.strip
+    lvl = lvl.to_i
+
+    id = id[0...60] + " ..." if id.length > 60
+    return res if id.empty?
+
+    mth = mth[0...60] + " ..." if mth.length > 60
+    return res if mth.empty?
+
     msg = "'#{id}' #{obj.class}? expecting #{cl} (#{mth})"
-    lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
   end
@@ -241,24 +246,25 @@ module OSlg
   # @param res [Object] what to return (optional)
   #
   # @return [Object] return object if specified by user
-  # @return [Nil] nil if return object missing or invalid
+  # @return [Nil] nil if return object undefined
   def hashkey(id = "", hsh = {}, key = "", mth = "", lvl = DEBUG, res = nil)
-    return nil unless defined?(res)
-    return res unless defined?(id ) && id
-    return res unless defined?(hsh) && hsh
-    return res unless defined?(key) && key
-    return res unless defined?(mth) && mth
-    return res unless defined?(lvl) && lvl
+    return res unless id.respond_to?(:to_s)
+    return res unless hsh.is_a?(Hash)
+    return res if hsh.key?(key)
+    return res unless mth.respond_to?(:to_s)
+    return res unless lvl.respond_to?(:to_i)
+
+    id  = id.to_s.strip
     mth = mth.to_s.strip
-    mth = mth[0...60] + " ..." if mth.length > 60
-    return res if mth.empty?
-    id = id.to_s.strip
+    lvl = lvl.to_i
+
     id = id[0...60] + " ..." if id.length > 60
     return res if id.empty?
-    return mismatch(id, hsh, Hash, mth, lvl, res) unless hsh.is_a?(Hash)
-    return res if hsh.key?(key)
+
+    mth = mth[0...60] + " ..." if mth.length > 60
+    return res if mth.empty?
+
     msg  = "Missing '#{key}' key in '#{id}' Hash (#{mth})"
-    lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
   end
@@ -272,20 +278,23 @@ module OSlg
   # @param res [Object] what to return (optional)
   #
   # @return [Object] return object if specified by user
-  # @return [Nil] nil if return object missing or invalid
+  # @return [Nil] nil if return object undefined
   def empty(id = "", mth = "", lvl = DEBUG, res = nil)
-    return nil unless defined?(res)
-    return res unless defined?(id ) && id
-    return res unless defined?(mth) && mth
-    return res unless defined?(lvl) && lvl
+    return res unless id.respond_to?(:to_s)
+    return res unless mth.respond_to?(:to_s)
+    return res unless lvl.respond_to?(:to_i)
+
+    id  = id.to_s.strip
     mth = mth.to_s.strip
-    mth = mth[0...60] + " ..." if mth.length > 60
-    return res if mth.empty?
-    id = id.to_s.strip
+    lvl = lvl.to_i
+
     id = id[0...60] + " ..." if id.length > 60
     return res if id.empty?
+
+    mth = mth[0...60] + " ..." if mth.length > 60
+    return res if mth.empty?
+
     msg  = "Empty '#{id}' (#{mth})"
-    lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
   end
@@ -299,20 +308,24 @@ module OSlg
   # @param res [Object] what to return (optional)
   #
   # @return [Object] return object if specified by user
-  # @return [Nil] nil if return object missing or invalid
+  # @return [Nil] nil if return object undefined
   def zero(id = "", mth = "", lvl = DEBUG, res = nil)
-    return nil unless defined?(res)
-    return res unless defined?(id ) && id
-    return res unless defined?(mth) && mth
-    return res unless defined?(lvl) && lvl
+    return res unless id.respond_to?(:to_s)
+    return res unless mth.respond_to?(:to_s)
+    return res unless lvl.respond_to?(:to_i)
+
+    id  = id.to_s.strip
     mth = mth.to_s.strip
-    mth = mth[0...60] + " ..." if mth.length > 60
-    return res if mth.empty?
-    id = id.to_s.strip
+    ord = ord.to_i
+    lvl = lvl.to_i
+
     id = id[0...60] + " ..." if id.length > 60
     return res if id.empty?
+
+    mth = mth[0...60] + " ..." if mth.length > 60
+    return res if mth.empty?
+
     msg  = "Zero '#{id}' (#{mth})"
-    lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
   end
@@ -326,20 +339,24 @@ module OSlg
   # @param res [Object] what to return (optional)
   #
   # @return [Object] return object if specified by user
-  # @return [Nil] nil if return object missing or invalid
+  # @return [Nil] nil if return object undefined
   def negative(id = "", mth = "", lvl = DEBUG, res = nil)
-    return nil unless defined?(res)
-    return res unless defined?(id ) && id
-    return res unless defined?(mth) && mth
-    return res unless defined?(lvl) && lvl
+    return res unless id.respond_to?(:to_s)
+    return res unless mth.respond_to?(:to_s)
+    return res unless lvl.respond_to?(:to_i)
+
+    id  = id.to_s.strip
     mth = mth.to_s.strip
-    mth = mth[0...60] + " ..." if mth.length > 60
-    return res if mth.empty?
-    id = id.to_s.strip
+    ord = ord.to_i
+    lvl = lvl.to_i
+
     id = id[0...60] + " ..." if id.length > 60
     return res if id.empty?
+
+    mth = mth[0...60] + " ..." if mth.length > 60
+    return res if mth.empty?
+    
     msg  = "Negative '#{id}' (#{mth})"
-    lvl = lvl.to_i unless lvl.is_a?(Integer)
     log(lvl, msg) if lvl >= DEBUG && lvl <= FATAL
     res
   end
