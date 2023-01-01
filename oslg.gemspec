@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake",    "~> 13.0"
   s.add_development_dependency "rspec",   "~> 3.11"
 
-  s.metadata["homepage_uri"]    = s.homepage
+  s.metadata["homepage_uri"   ] = s.homepage
   s.metadata["source_code_uri"] = "#{s.homepage}/tree/v#{s.version}"
   s.metadata["bug_tracker_uri"] = "#{s.homepage}/issues"
 end
