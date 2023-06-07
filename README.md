@@ -18,7 +18,7 @@ In most cases, critical (and many non-critical) OpenStudio anomalies will be cau
 
 ### Recommended use
 
-As a Ruby module, one can access __oslg__ by _extending_ a measure module or class:
+As a Ruby module, one can access __oslg__ by _extending_ a Measure module or class:
 
 ```
 module M
@@ -39,7 +39,7 @@ FATAL
 
 DEBUG messages aren't benign at all, but are certainly less informative for the typical Measure user.
 
-Initially, __oslg__ sets 2x internal attributes: `level` (INFO) and `status` (< DEBUG). The `level` attribute is a user-set threshold below which less severe logs (e.g. DEBUG) are ignored. For instance, if `level` were _reset_ to DEBUG (e.g. `M.reset(M::DEBUG)`), then all DEBUG messages would also be logged. The `status` attribute is reset with each new log entry if the latter's log level is more severe than its predecessor (e.g. `status == M::FATAL` if there is a single log entry registered as FATAL). To check the curent __oslg__ `status` (true or false):  
+Initially, __oslg__ sets 2x internal attributes: `level` (INFO) and `status` (< DEBUG). The `level` attribute is a user-set threshold below which less severe logs (e.g. DEBUG) are ignored. For instance, if `level` were _reset_ to DEBUG (e.g. `M.reset(M::DEBUG)`), then all DEBUG messages would also be logged. The `status` attribute is reset with each new log entry when the latter's log level is more severe than its predecessors (e.g. `status == M::FATAL` if there is a single log entry registered as FATAL). To check the curent __oslg__ `status` (true or false):  
 
 ```
 M.debug?
@@ -54,25 +54,25 @@ It's sometimes not a bad idea to rely on a _clean_ slate (e.g. within RSpecs). T
 M.clean!
 ```
 
-EnergyPlus will run, with e.g. out-of-range material or fluid properties, while logging ERROR messages in the process. It remains up to users to decide what to do with simulation results. We recommend something similar with __oslg__. For instance, we suggest logging as __FATAL__ any error that should halt measure processes and prevent OpenStudio from launching an EnergyPlus simulation. This could be missing or poorly-defined OpenStudio files.
+EnergyPlus will run with e.g. out-of-range material or fluid properties, while logging ERROR messages in the process. It remains up to users to decide what to do with simulation results. We recommend something similar with __oslg__. For instance, we suggest logging as __FATAL__ any error that should halt Measure processes and prevent OpenStudio from launching an EnergyPlus simulation. This could be missing or poorly-defined OpenStudio files.
 
 ```
 M.log(M::FATAL, "Missing input JSON file")
 ```
 
-Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, i.e. well-defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision made by the EnergyPlus simulation engine), it would be up to users to decide if simulation results were valid or useful, given the context - maybe based on __oslg__ logged messages. In short, non-fatal ERROR logs should ideally point to bad input (that users can fix).
+Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStudio file entries, i.e. well-defined, yet invalid vis-à-vis EnergyPlus limitations. The invalid object could be simply ignored, while the Measure pursues its (otherwise valid) calculations ... with OpenStudio ultimately launching an EnergyPlus simulation. If a simulation indeed ran (ultimately a go/no-go decision made by the EnergyPlus simulation engine), it would be up to users to decide if simulation results were valid or useful, given the context - maybe based on __oslg__ logged messages. In short, non-fatal ERROR logs should ideally point to bad input (that users can fix).
 
 ```
 M.log(M::ERROR, "Measure won't process MASSLESS materials")
 ```
 
-A __WARNING__ could be triggered from inherit limitations of the underlying measure scope or methodology (something users may have little knowledge of beforehand). For instance, surfaces the size of dinner plates are often artifacts of poor 3D model design. It's usually not a good idea to have such small surfaces in an OpenStudio model, but neither OpenStudio nor EnergyPlus will necessarily warn users of such occurrences. It's up to users to decide on the suitable course of action.
+A __WARNING__ could be triggered from inherit limitations of the underlying Measure scope or methodology (something users may have little knowledge of beforehand). For instance, surfaces the size of dinner plates are often artifacts of poor 3D model design. It's usually not a good idea to have such small surfaces in an OpenStudio model, but neither OpenStudio nor EnergyPlus will necessarily warn users of such occurrences. It's up to users to decide on the suitable course of action.
 
 ```
 M.log(M::WARN, "Surface area < 100cm2")
 ```
 
-There's also the possibility of logging __INFO__-rmative messages for users, e.g. the final state of a measure variable before exiting.
+There's also the possibility of logging __INFO__-rmative messages for users, e.g. the final state of a Measure variable before exiting.
 
 ```
 M.log(M::INFO, "Envelope compliant to prescriptive code requirements")
@@ -131,7 +131,7 @@ def sum(areas, units)
 end
 ```
 
-... would generate the following if both `areas` and `units` arguments were nilled:
+... would generate the following if both `areas` and `units` arguments were for instance _nilled_:
 ```
 "Invalid 'areas' arg #1 (sum)"
 "Invalid 'units' arg #2 (sum)"
@@ -147,7 +147,7 @@ __mismatch__: for logging incompatible instances vs classes:
 return M.mismatch("areas", areas, Array, "sum") unless areas.is_a?(Array)
 ```
 
-If 'areas' were a _String_, __mismatch__ would generate the following DEBUG log message (before returning _nil_):
+If 'areas' were for example a _String_, __mismatch__ would generate the following DEBUG log message (before returning _nil_):
 
 ```
 "'areas' String? expecting Array (sum)"
