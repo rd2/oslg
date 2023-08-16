@@ -1,6 +1,6 @@
 # oslg
 
-A logger module, initially for _picky_ [OpenStudio](https://openstudio.net) [Measure](https://nrel.github.io/OpenStudio-user-documentation/reference/measure_writing_guide/) developers who wish to select what gets logged to which target (e.g. OpenStudio _runner_ vs custom JSON file). __oslg__ has no OpenStudio dependency, however; it can be integrated within any other environment. Just add:
+A logger, initially for _picky_ [OpenStudio](https://openstudio.net) [Measure](https://nrel.github.io/OpenStudio-user-documentation/reference/measure_writing_guide/) developers who wish to select what gets logged to which target (e.g. OpenStudio _runner_ vs custom JSON files). Yet __oslg__ has no OpenStudio dependency; it can be integrated within any other environment. Just add:
 
 ```
 gem "oslg", git: "https://github.com/rd2/oslg", branch: "main"
@@ -14,7 +14,7 @@ bundle install (or 'bundle update')
 
 ### OpenStudio & EnergyPlus
 
-In most cases, critical (and many non-critical) OpenStudio anomalies will be caught by EnergyPlus at the start of a simulation. Standalone applications (e.g. _Apply Measures Now_) or [SDK](https://openstudio-sdk-documentation.s3.amazonaws.com/index.html) based iterative solutions can't rely on EnergyPlus to catch such errors - and somehow warn users of potentially invalid results. This Ruby module provides developers a means to log warnings, as well as non-fatal & fatal errors, that may eventually put OpenStudio's (or EnergyPlus') internal processes at risk. Developers are free to decide how to harness __oslg__ as they see fit, e.g. output logged WARNING messages to the OpenStudio _runner_, while writing out DEBUG messages to a bug report file.
+In most cases, critical (and many non-critical) OpenStudio anomalies will be caught by EnergyPlus at the start of a simulation. Standalone applications (e.g. _Apply Measures Now_) or [SDK](https://openstudio-sdk-documentation.s3.amazonaws.com/index.html) based iterative solutions can't rely on EnergyPlus to catch such errors - and somehow warn users of potentially invalid results. __oslg__ provides developers a means to log warnings, as well as non-fatal & fatal errors, that may eventually put OpenStudio's (or EnergyPlus') internal processes at risk. Developers are free to decide how to harness __oslg__ as they see fit, e.g. output logged WARNING messages to the OpenStudio _runner_, while writing out DEBUG messages to a bug report file.
 
 ### Recommended use
 
@@ -66,7 +66,7 @@ Consider logging non-fatal __ERROR__ messages when encountering invalid OpenStud
 M.log(M::ERROR, "Measure won't process MASSLESS materials")
 ```
 
-A __WARNING__ could be triggered from inherit limitations of the underlying Measure scope or methodology (something users may have little knowledge of beforehand). For instance, surfaces the size of dinner plates are often artifacts of poor 3D model design. It's usually not a good idea to have such small surfaces in an OpenStudio model, but neither OpenStudio nor EnergyPlus will necessarily warn users of such occurrences. It's up to users to decide on the suitable course of action.
+A __WARNING__ could be triggered from inherit limitations of the underlying Measure scope or methodology (something users may have little knowledge of beforehand). For instance, surfaces the size of dinner plates are often artifacts of poor 3D modelling. It's usually not a good idea to have such small surfaces in an OpenStudio model, but neither OpenStudio nor EnergyPlus will necessarily warn users of such occurrences. It's up to users to decide on the suitable course of action.
 
 ```
 M.log(M::WARN, "Surface area < 100cm2")
@@ -109,13 +109,13 @@ The following are __oslg__ one-liner methods that _log & return_ in one go. Thes
 
 ---
 
-__invalid__: for logging e.g. nilled or inapplicable objects:
+__invalid__: for logging e.g. nilled objects or out-of-scope variables:
 
 ```
 return M.invalid("area", "sum", 0, M::FATAL, false) if area > 1000000
 ```
 
-This logs a FATAL error message informing users that an invalid object, 'area', was caught while running method 'sum', and then exits by returning _false_. The logged message would be:
+This logs a FATAL error message informing users that an out-of-scope argument, 'area', was caught while running method 'sum', and then exits by returning _false_. The logged message would be:
 
 ```
 "Invalid 'area' (sum)"
@@ -153,7 +153,7 @@ If 'area' were for example a _String_, __mismatch__ would generate the following
 "'area' String? expecting Float (sum)"
 ```
 
-These 4 __mismatch__ parameters are required (an object ID, a valid Ruby object, the mismatched Ruby class, and the calling method ID). As a safeguard, __oslg__ will NOT log a _mismatch_ if the object is an actual instance of the class. As with __invalid__, there are 2 optional _terminal_ parameters (e.g. `M::FATAL, false)`.
+These 4 __mismatch__ parameters are required (an object ID, a valid Ruby object, the mismatched Ruby class, and the calling method ID). As a safeguard, __oslg__ will NOT log a _mismatch_ if the object is an actual instance of the class. As with __invalid__, there are 2 optional _terminal_ parameters (e.g. `M::FATAL`, `false`).
 
 ---
 
@@ -169,17 +169,17 @@ If the _Hash_ `floor` does not hold `:area` as one of its keys, then __hashkey__
 "Missing 'area' key in 'floor' Hash (sum)"
 ```
 
-Similar to __mismatch__, the method __hashkey__ requires 4 parameters (a _Hash_ ID, a valid Ruby _Hash_, the missing _key_, and the calling method ID). There are also 2 optional _terminal_ parameters (e.g. `M::FATAL, false)`.
+Similar to __mismatch__, the method __hashkey__ requires 4 parameters (a _Hash_ ID, a valid Ruby _Hash_, the missing _key_, and the calling method ID). There are also 2 optional _terminal_ parameters (e.g. `M::FATAL`, `false`).
 
 ---
 
-__empty__: for logging empty _Enumerable_ (e.g. _Array_, _Hash_) instances or uninitialized _Boost_ optionals (e.g. uninitialized _ThermalZone_ object of an _OpenStudio Space_):
+__empty__: for logging empty _Enumerable_ (e.g. _Array_, _Hash_) instances or uninitialized _Boost_ optionals (e.g. an uninitialized _ThermalZone_ object of an _OpenStudio Space_):
 
 ```
-return M.empty("zone", "conditioned?") if space.thermalZone.empty?
+return M.empty("zone", "conditioned?", M::FATAL, false) if space.thermalZone.empty?
 ```
 
-An empty (i.e. uninitialized) `thermalZone` would generate the following DEBUG log message (before returning _nil_):
+An empty (i.e. uninitialized) `thermalZone` would generate the following FATAL error log message (before returning _false_):
 
 ```
 "Empty 'zone' (conditioned?)"
@@ -194,7 +194,7 @@ __zero__: for logging zero'ed (or nearly-zero'ed) values:
 ```
 M.zero("floor area", "sum", M::FATAL, false) if floor[:area].abs < TOL
 ```
-... generating the following FATAL log message (before returning _false_):
+... generating the following FATAL error log message (before returning _false_):
 
 ```
 "Zero 'floor area' (sum)"
