@@ -15,8 +15,8 @@ Gem::Specification.new do |s|
   s.version               = OSlg::VERSION
   s.license               = "BSD-3-Clause"
   s.summary               = "OpenStudio SDK logger"
-  s.description           = "For OpenStudio SDK users who wish to select "     \
-                            "what gets logged to which target."
+  s.description           = "For OpenStudio SDK users (or others) who wish "\
+                            "to select what gets logged to which target."
   s.authors               = ["Denis Bourgeois"]
   s.email                 = ["denis@rd2.ca"]
   s.platform              = Gem::Platform::RUBY
