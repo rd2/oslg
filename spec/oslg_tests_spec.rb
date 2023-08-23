@@ -7,6 +7,7 @@ RSpec.describe OSlg do
   let(:mod2) { Module.new { extend OSlg } }
 
   it "can log within class instances" do
+    expect(cls1.trim(nil).length).to eq(0)
     expect(cls1.tag(cls1::DEBUG)).to eq("DEBUG")
     expect(cls1.msg(cls1::DEBUG)).to eq("Debugging ...")
 

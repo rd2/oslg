@@ -167,7 +167,7 @@ module OSlg
   # @return [String] a trimmed message string (empty unless stringable)
   def trim(txt = "", length = 60)
     length = 60 unless length.respond_to?(:to_i)
-    length = length.to_i
+    length = length.to_i if length.respond_to?(:to_i)
     return "" unless txt.respond_to?(:to_s)
 
     txt = txt.to_s.strip
