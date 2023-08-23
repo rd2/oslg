@@ -29,14 +29,35 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module OSlg
-  DEBUG    = 1 # e.g. for debugging e.g. "argument String? expecting Integer"
-  INFO     = 2 # e.g. informative e.g. "success! no errors, no warnings"
-  WARN     = 3 # e.g. warnings e.g. "partial success, see non-fatal warnings"
-  ERROR    = 4 # e.g. erros e.g. "partial success, see non-fatal errors"
-  FATAL    = 5 # e.g. failures e.g. "stopping! encountered fatal errors"
+  DEBUG = 1 # e.g. for debugging e.g. "argument String? expecting Integer"
+  INFO  = 2 # e.g. informative e.g. "success! no errors, no warnings"
+  WARN  = 3 # e.g. warnings e.g. "partial success, see non-fatal warnings"
+  ERROR = 4 # e.g. erros e.g. "partial success, see non-fatal errors"
+  FATAL = 5 # e.g. failures e.g. "stopping! encountered fatal errors"
 
   # each log is a Hash with keys :level (Integer) and :message (String)
-  @@logs   = []
+  @@logs = []
+
+  # preset strings matching log levels
+  @@tag = [
+           "", # (empty string)
+      "DEBUG", # DEBUG
+       "INFO", # INFO
+    "WARNING", # WARNING
+      "ERROR", # ERROR
+      "FATAL"  # FATAL
+  ].freeze
+
+  # preset strings matching log status
+  @@msg = [
+                                                 "", # (empty string)
+                                    "Debugging ...", # DEBUG
+                  "Success! No errors, no warnings", # INFO
+       "Partial success, raised non-fatal warnings", # WARNING
+    "Partial success, encountered non-fatal errors", # ERROR
+                  "Failure, triggered fatal errors"  # FATAL
+  ].freeze
+
   @@level  = INFO # initial log level
   @@status = 0    # initial status
 
@@ -51,7 +72,7 @@ module OSlg
   ##
   # Returns current log level.
   #
-  # @return [Integer] DEBUG, INFO, WARN, ERROR or FATAL
+  # @return [DEBUG, INFO, WARN, ERROR, FATAL] log level
   def level
     @@level
   end
@@ -59,7 +80,7 @@ module OSlg
   ##
   # Returns current log status.
   #
-  # @return [Integer] DEBUG, INFO, WARN, ERROR or FATAL
+  # @return [0, DEBUG, INFO, WARN, ERROR, FATAL] log status
   def status
     @@status
   end
@@ -67,7 +88,7 @@ module OSlg
   ##
   # Returns whether current status is DEBUG.
   #
-  # @return [Bool] true if DEBUG
+  # @return [Bool] whether current log status is DEBUG
   def debug?
     @@status == DEBUG
   end
@@ -75,7 +96,7 @@ module OSlg
   ##
   # Returns whether current status is INFO.
   #
-  # @return [Bool] true if INFO
+  # @return [Bool] whether current log status is INFO
   def info?
     @@status == INFO
   end
@@ -83,7 +104,7 @@ module OSlg
   ##
   # Returns whether current status is WARN.
   #
-  # @return [Bool] true if WARN
+  # @return [Bool] whether current log status is WARN
   def warn?
     @@status == WARN
   end
@@ -91,7 +112,7 @@ module OSlg
   ##
   # Returns whether current status is ERROR.
   #
-  # @return [Bool] true if ERROR
+  # @return [Bool] whether current log status is ERROR
   def error?
     @@status == ERROR
   end
@@ -99,9 +120,60 @@ module OSlg
   ##
   # Returns whether current status is FATAL.
   #
-  # @return [Bool] true if FATAL
+  # @return [Bool] whether current log status is FATAL
   def fatal?
     @@status == FATAL
+  end
+
+  ##
+  # Returns preset OSlg string that matches log level.
+  #
+  # @param lvl [#to_i] 0, DEBUG, INFO, WARN, ERROR or FATAL
+  #
+  # @return [String] preset OSlg tag (see @@tag)
+  def tag(lvl)
+    return "" unless lvl.respond_to?(:to_i)
+
+    lvl = lvl.to_i
+    return "" if lvl < DEBUG
+    return "" if lvl > FATAL
+
+    @@tag[lvl]
+
+  end
+
+  ##
+  # Returns preset OSlg message that matches log status.
+  #
+  # @param stat [Integer] 0, DEBUG, INFO, WARN, ERROR or FATAL
+  #
+  # @return [String] preset OSlg message (see @@msg)
+  def msg(stat)
+    return "" unless stat.respond_to?(:to_i)
+
+    stat = stat.to_i
+    return "" if stat < DEBUG
+    return "" if stat > FATAL
+
+    @@msg[stat]
+  end
+
+  ##
+  # Converts object to String and trims if necessary.
+  #
+  # @param txt [#to_s] a stringable object
+  # @param length [#to_i] maximum return string length
+  #
+  # @return [String] a trimmed message string (empty unless stringable)
+  def trim(txt = "", length = 60)
+    length = 60 unless length.respond_to?(:to_i)
+    length = length.to_i
+    return "" unless txt.respond_to?(:to_s)
+
+    txt = txt.to_s.strip
+    txt = txt[0...length] + " ..." if txt.length > length
+
+    txt
   end
 
   ##
@@ -109,7 +181,7 @@ module OSlg
   #
   # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL
   #
-  # @return [Integer] updated/current level
+  # @return [DEBUG, INFO, WARN, ERROR, FATAL] updated/current level
   def reset(lvl = DEBUG)
     return @@level unless lvl.respond_to?(:to_i)
 
@@ -129,13 +201,13 @@ module OSlg
   # @example A user warning
   #   log(WARN, "Surface area < 100cm2")
   #
-  # @return [Integer] updated/current status
+  # @return [DEBUG, INFO, WARN, ERROR, FATAL] updated/current status
   def log(lvl = DEBUG, message = "")
     return @@status unless lvl.respond_to?(:to_i)
     return @@status unless message.respond_to?(:to_s)
 
     lvl = lvl.to_i
-    message = message.to_s.strip
+    message = trim(message)
     return @@status if lvl < DEBUG
     return @@status if lvl > FATAL
     return @@status if lvl < @@level
@@ -152,7 +224,7 @@ module OSlg
   # @param id [#to_s] 'invalid object' identifier
   # @param mth [#to_s] calling method identifier
   # @param ord [#to_i] calling method argument order number of obj (optional)
-  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL
+  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res what to return (optional)
   #
   # @example An invalid argument, logging a FATAL error, returning FALSE
@@ -166,23 +238,18 @@ module OSlg
     return res unless ord.respond_to?(:to_i)
     return res unless lvl.respond_to?(:to_i)
 
-    id  = id.to_s.strip
-    mth = mth.to_s.strip
     ord = ord.to_i
     lvl = lvl.to_i
-
-    id = id[0...60] + " ..." if id.length > 60
+    id  = trim(id)
+    mth = trim(mth)
     return res if id.empty?
-
-    mth = mth[0...60] + " ..." if mth.length > 60
     return res if mth.empty?
+    return res if lvl < DEBUG
+    return res if lvl > FATAL
 
     msg = "Invalid '#{id}' "
     msg += "arg ##{ord} " if ord > 0
     msg += "(#{mth})"
-    return res if lvl < DEBUG
-    return res if lvl > FATAL
-
     log(lvl, msg)
 
     res
@@ -197,7 +264,7 @@ module OSlg
   # @param obj the object to validate
   # @param cl [Class] target class
   # @param mth [#to_s] calling method identifier (optional)
-  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL
+  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res what to return (optional)
   #
   # @example A mismatched argument instance/class
@@ -207,26 +274,20 @@ module OSlg
   # @return [nil] if user hasn't provided an object to return
   def mismatch(id = "", obj = nil, cl = nil, mth = "", lvl = DEBUG, res = nil)
     return res unless id.respond_to?(:to_s)
+    return res unless mth.respond_to?(:to_s)
     return res unless cl.is_a?(Class)
     return res if obj.is_a?(cl)
-    return res unless mth.respond_to?(:to_s)
     return res unless lvl.respond_to?(:to_i)
 
-    id  = id.to_s.strip
-    mth = mth.to_s.strip
     lvl = lvl.to_i
-
-    id = id[0...60] + " ..." if id.length > 60
+    id  = trim(id)
+    mth = trim(mth)
     return res if id.empty?
-
-    mth = mth[0...60] + " ..." if mth.length > 60
     return res if mth.empty?
-
-    msg = "'#{id}' #{obj.class}? expecting #{cl} (#{mth})"
     return res if lvl < DEBUG
     return res if lvl > FATAL
 
-    log(lvl, msg)
+    log(lvl, "'#{id}' #{obj.class}? expecting #{cl} (#{mth})")
 
     res
   end
@@ -239,7 +300,7 @@ module OSlg
   # @param hsh [Hash] hash to validate
   # @param key missing key
   # @param mth [#to_s] calling method identifier
-  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL
+  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res what to return (optional)
   #
   # @example A missing Hash key
@@ -254,21 +315,15 @@ module OSlg
     return res unless mth.respond_to?(:to_s)
     return res unless lvl.respond_to?(:to_i)
 
-    id  = id.to_s.strip
-    mth = mth.to_s.strip
     lvl = lvl.to_i
-
-    id = id[0...60] + " ..." if id.length > 60
+    id  = trim(id)
+    mth = trim(mth)
     return res if id.empty?
-
-    mth = mth[0...60] + " ..." if mth.length > 60
     return res if mth.empty?
-
-    msg = "Missing '#{key}' key in '#{id}' Hash (#{mth})"
     return res if lvl < DEBUG
     return res if lvl > FATAL
 
-    log(lvl, msg)
+    log(lvl, "Missing '#{key}' key in '#{id}' Hash (#{mth})")
 
     res
   end
@@ -278,7 +333,7 @@ module OSlg
   #
   # @param id [#to_s] empty object identifier
   # @param mth [#to_s] calling method identifier
-  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL
+  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res what to return (optional)
   #
   # @example An uninitialized variable, logging an ERROR, returning FALSE
@@ -291,21 +346,15 @@ module OSlg
     return res unless mth.respond_to?(:to_s)
     return res unless lvl.respond_to?(:to_i)
 
-    id  = id.to_s.strip
-    mth = mth.to_s.strip
     lvl = lvl.to_i
-
-    id = id[0...60] + " ..." if id.length > 60
+    id  = trim(id)
+    mth = trim(mth)
     return res if id.empty?
-
-    mth = mth[0...60] + " ..." if mth.length > 60
     return res if mth.empty?
-
-    msg = "Empty '#{id}' (#{mth})"
     return res if lvl < DEBUG
     return res if lvl > FATAL
 
-    log(lvl, msg)
+    log(lvl, "Empty '#{id}' (#{mth})")
 
     res
   end
@@ -315,7 +364,7 @@ module OSlg
   #
   # @param id [#to_s] zero object identifier
   # @param mth [#to_s] calling method identifier
-  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL
+  # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL (optional)
   # @param res what to return (optional)
   #
   # @example A near-zero variable
@@ -328,22 +377,16 @@ module OSlg
     return res unless mth.respond_to?(:to_s)
     return res unless lvl.respond_to?(:to_i)
 
-    id  = id.to_s.strip
-    mth = mth.to_s.strip
     ord = ord.to_i
     lvl = lvl.to_i
-
-    id = id[0...60] + " ..." if id.length > 60
+    id  = trim(id)
+    mth = trim(mth)
     return res if id.empty?
-
-    mth = mth[0...60] + " ..." if mth.length > 60
     return res if mth.empty?
-
-    msg = "Zero '#{id}' (#{mth})"
     return res if lvl < DEBUG
     return res if lvl > FATAL
 
-    log(lvl, msg)
+    log(lvl, "Zero '#{id}' (#{mth})")
 
     res
   end
@@ -366,22 +409,15 @@ module OSlg
     return res unless mth.respond_to?(:to_s)
     return res unless lvl.respond_to?(:to_i)
 
-    id  = id.to_s.strip
-    mth = mth.to_s.strip
-    ord = ord.to_i
     lvl = lvl.to_i
-
-    id = id[0...60] + " ..." if id.length > 60
+    id  = trim(id)
+    mth = trim(mth)
     return res if id.empty?
-
-    mth = mth[0...60] + " ..." if mth.length > 60
     return res if mth.empty?
-
-    msg = "Negative '#{id}' (#{mth})"
     return res if lvl < DEBUG
     return res if lvl > FATAL
 
-    log(lvl, msg)
+    log(lvl, "Negative '#{id}' (#{mth})")
 
     res
   end
@@ -389,7 +425,7 @@ module OSlg
   ##
   # Resets log status and entries.
   #
-  # @return [Integer] current level
+  # @return [Integer] current log level
   def clean!
     @@status = 0
     @@logs   = []
