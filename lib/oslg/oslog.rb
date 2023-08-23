@@ -207,7 +207,7 @@ module OSlg
     return @@status unless message.respond_to?(:to_s)
 
     lvl = lvl.to_i
-    message = trim(message)
+    message = message.to_s
     return @@status if lvl < DEBUG
     return @@status if lvl > FATAL
     return @@status if lvl < @@level
