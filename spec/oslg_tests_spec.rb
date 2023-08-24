@@ -7,6 +7,10 @@ RSpec.describe OSlg do
   let(:mod2) { Module.new { extend OSlg } }
 
   it "can log within class instances" do
+    expect(cls1.trim(nil).length).to eq(0)
+    expect(cls1.tag(cls1::DEBUG)).to eq("DEBUG")
+    expect(cls1.msg(cls1::DEBUG)).to eq("Debugging ...")
+
     expect(cls1.clean!).to eq(cls1::INFO)
     expect(cls1.log(cls1::INFO, "Logging within cls1")).to eq(cls1::INFO)
 
@@ -83,11 +87,19 @@ RSpec.describe OSlg do
     expect(cls2.logs.empty?).to be(true)
 
     array = (1..60).to_a
+    l1 = 3 * 9 # "1, " + "2, " + "3, " ...+ "9, "
+    l2 = 4 * (59 - 9) # "10, " + "11, " + 12, ...+ "59, "
+    l3 = 2 # "60"
+    l4 = 2 # "[]"
+    expect(array.to_s.size).to eq(l1 + l2 + l3 + l4)
     expect(cls2.mismatch("x", "String", Array, array).nil?).to be(true)
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first.key?(:message))
-    str = "'x' String? expecting Array ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,"
-    expect(cls2.logs.first[:message].include?(str)).to be(true)
+    str1 = "'x' String? expecting Array " # 28 chars
+    str2 = "([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,  ...)"
+    expect(str1.size + str2.size).to eq(28 + 60 + "(".length + " ...)".length)
+    expect(cls2.logs.first[:message].length).to eq(str1.size + str2.size)
+    expect(cls2.logs.first[:message]).to eq(str1 + str2)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.hashkey("x", {bar: 0}, "k", "foo")).to be(nil)
