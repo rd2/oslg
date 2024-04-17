@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.bindir                = "exe"
   s.require_paths         = ["lib"]
   s.executables           = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  s.required_ruby_version = [">= 2.5.0", "< 3"]
+  s.required_ruby_version = [">= 2.5.0", "< 4"]
   s.metadata              = {}
 
   s.add_development_dependency "bundler", "~> 2.1"
