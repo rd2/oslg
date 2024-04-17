@@ -6,7 +6,7 @@ A logger, initially for _picky_ [OpenStudio](https://openstudio.net) [Measure](h
 gem "oslg", git: "https://github.com/rd2/oslg", branch: "main"
 ```
 
-... in a v2.1 [bundled](https://bundler.io) development environment "Gemfile" (or instead as a _gemspec_ dependency), and then run:
+... in a v2.x [bundled](https://bundler.io) development environment "Gemfile" (or instead as a _gemspec_ dependency), and then run:
 
 ```
 bundle install (or 'bundle update')
