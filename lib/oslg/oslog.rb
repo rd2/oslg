@@ -102,9 +102,9 @@ module OSlg
   end
 
   ##
-  # Returns whether current status is WARN.
+  # Returns whether current status is WARNING.
   #
-  # @return [Bool] whether current log status is WARN
+  # @return [Bool] whether current log status is WARNING
   def warn?
     @@status == WARN
   end
@@ -165,8 +165,8 @@ module OSlg
   # @param length [#to_i] maximum return string length
   #
   # @return [String] a trimmed message string (empty unless stringable)
-  def trim(txt = "", length = 60)
-    length = 60 unless length.respond_to?(:to_i)
+  def trim(txt = "", length = 160)
+    length = 160 unless length.respond_to?(:to_i)
     length = length.to_i if length.respond_to?(:to_i)
     return "" unless txt.respond_to?(:to_s)
 
@@ -193,21 +193,32 @@ module OSlg
   end
 
   ##
-  # Logs a new entry, if provided arguments are valid.
+  # Logs a new entry. Overall log status is raised if new level is greater
+  # than current level (e.g. FATAL > ERROR). Candidate log entry is ignored and
+  # status remains unchanged if the new level cannot be converted to an integer,
+  # if not an OSlg constant (once converted), or if new level is below the
+  # current log level. Relies on OSlg method 'trim()': candidate log message is
+  # ignored and status unchanged if message is not a valid string.
   #
   # @param lvl [#to_i] DEBUG, INFO, WARN, ERROR or FATAL
   # @param message [#to_s] user-provided log message
+  # @param length [#to_i] maximum message length (max. 160 chars)
   #
   # @example A user warning
   #   log(WARN, "Surface area < 100cm2")
   #
   # @return [DEBUG, INFO, WARN, ERROR, FATAL] updated/current status
-  def log(lvl = DEBUG, message = "")
+  def log(lvl = DEBUG, message = "", length = 160)
     return @@status unless lvl.respond_to?(:to_i)
     return @@status unless message.respond_to?(:to_s)
 
+    length = length.respond_to?(:to_i) ? length.to_i : 160
+    length = 160 if length > 160
+
     lvl = lvl.to_i
-    message = message.to_s
+    message = trim(message, length)
+
+    return @@status if message.empty?
     return @@status if lvl < DEBUG
     return @@status if lvl > FATAL
     return @@status if lvl < @@level
@@ -220,6 +231,10 @@ module OSlg
 
   ##
   # Logs template 'invalid object' message, if provided arguments are valid.
+  # Relies on OSlg method 'log()': first check out its own operation, exit
+  # conditions and module side effects. Candidate log entry is ignored and
+  # status remains unchanged if 'ord' cannot be converted to an integer.
+  # Argument 'ord' is ignored unless > 0.
   #
   # @param id [#to_s] 'invalid object' identifier
   # @param mth [#to_s] calling method identifier
