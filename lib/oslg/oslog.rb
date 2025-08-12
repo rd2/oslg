@@ -214,8 +214,7 @@ module OSlg
     return @@status unless message.respond_to?(:to_s)
 
     lvl = lvl.to_i
-    message = len.is_a?(Numeric) ? trim(message, len) : trim(message)
-
+    message = trim(message, len)
     return @@status if message.empty?
     return @@status if lvl < DEBUG
     return @@status if lvl > FATAL
