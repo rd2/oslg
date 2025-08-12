@@ -86,13 +86,15 @@ RSpec.describe OSlg do
     expect(cls2.mismatch("x", "String", String, "foo")).to be_nil
     expect(cls2.logs).to be_empty
 
+    # Longish error message, exceeding 160 chars.
     array = (1..60).to_a
     l1 = 3 * 9 # "1, " + "2, " + "3, " ...+ "9, "
     l2 = 4 * (59 - 9) # "10, " + "11, " + 12, ...+ "59, "
     l3 = 2 # "60"
     l4 = 2 # "[]"
+    expect(l1 + l2 + l3 + l4).to eq(231)
     expect(array.to_s.size).to eq(l1 + l2 + l3 + l4)
-    expect(cls2.mismatch("x", "String", Array, array)).to be_nil
+    expect(cls2.mismatch("x", "String", Array, array, cls2::FATAL, nil, 160)).to be_nil
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first).to have_key(:message)
     str1 = "'x' String? expecting Array "                    # 28 chars
