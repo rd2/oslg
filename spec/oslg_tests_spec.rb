@@ -86,20 +86,25 @@ RSpec.describe OSlg do
     expect(cls2.mismatch("x", "String", String, "foo")).to be_nil
     expect(cls2.logs).to be_empty
 
+    # Longish error message, exceeding 160 chars.
     array = (1..60).to_a
     l1 = 3 * 9 # "1, " + "2, " + "3, " ...+ "9, "
     l2 = 4 * (59 - 9) # "10, " + "11, " + 12, ...+ "59, "
     l3 = 2 # "60"
     l4 = 2 # "[]"
+    expect(l1 + l2 + l3 + l4).to eq(231)
     expect(array.to_s.size).to eq(l1 + l2 + l3 + l4)
-    expect(cls2.mismatch("x", "String", Array, array)).to be_nil
+    expect(cls2.mismatch("x", "String", Array, array, cls2::FATAL, nil, 160)).to be_nil
     expect(cls2.logs.size).to eq(1)
     expect(cls2.logs.first).to have_key(:message)
-    str1 = "'x' String? expecting Array " # 28 chars
-    str2 = "([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,  ...)"
-    expect(str1.size + str2.size).to eq(28 + 60 + "(".length + " ...)".length)
-    expect(cls2.logs.first[:message].length).to eq(str1.size + str2.size)
-    expect(cls2.logs.first[:message]).to eq(str1 + str2)
+    str1 = "'x' String? expecting Array "                    # 28 chars
+    str2 = "([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "   # 45 chars
+    str3 = "14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, "    # 44 chars
+    str4 = "25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, ..." # 47 chars
+    str0 = str1 + str2 + str3 + str4
+    expect(str0.length).to eq(164) # i.e. 160 MAX + " ..."
+    expect(cls2.logs.first[:message].length).to eq(str0.length)
+    expect(cls2.logs.first[:message]).to eq(str0)
 
     expect(cls2.clean!).to eq(cls2::DEBUG)
     expect(cls2.hashkey("x", {bar: 0}, "k", "foo")).to be_nil
